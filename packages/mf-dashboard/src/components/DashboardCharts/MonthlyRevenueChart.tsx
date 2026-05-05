@@ -27,21 +27,24 @@ interface Props {
 }
 
 function CustomTooltip({ active, payload, label }: any) {
+  const theme = useTheme();
   if (!active || !payload?.length) return null;
+
+  const isDark = theme.palette.mode === 'dark';
 
   return (
     <Box
       sx={{
-        background: 'rgba(255,255,255,0.95)',
+        background: isDark ? 'rgba(30,41,59,0.95)' : 'rgba(255,255,255,0.95)',
         backdropFilter: 'blur(8px)',
         borderRadius: 2,
         p: 2,
         boxShadow: '0 4px 20px rgba(0,0,0,0.12)',
-        border: '1px solid rgba(0,0,0,0.06)',
+        border: isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.06)',
         minWidth: 180,
       }}
     >
-      <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1 }}>
+      <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1, color: isDark ? '#fff' : 'inherit' }}>
         Tháng {String(label).replace('T', '')}
       </Typography>
       {payload.map((entry: any, idx: number) => (
@@ -59,7 +62,7 @@ function CustomTooltip({ active, payload, label }: any) {
               {entry.name}
             </Typography>
           </Box>
-          <Typography variant="caption" fontWeight={600}>
+          <Typography variant="caption" fontWeight={600} sx={{ color: isDark ? '#fff' : 'inherit' }}>
             {new Intl.NumberFormat('vi-VN').format(entry.value)}đ
           </Typography>
         </Box>
@@ -109,7 +112,7 @@ export default function MonthlyRevenueChart({ data }: Props) {
         </Typography>
 
         <ResponsiveContainer width="100%" height={380}>
-          <BarChart data={chartData} barGap={2} barCategoryGap="20%">
+          <BarChart data={chartData} barCategoryGap="25%">
             <defs>
               {GRADIENT_IDS.map((id, idx) => (
                 <linearGradient key={id} id={id} x1="0" y1="0" x2="0" y2="1">
@@ -144,8 +147,8 @@ export default function MonthlyRevenueChart({ data }: Props) {
                 key={service.service_id}
                 dataKey={service.service_name}
                 fill={`url(#${GRADIENT_IDS[idx % GRADIENT_IDS.length]})`}
-                radius={[6, 6, 0, 0]}
-                maxBarSize={32}
+                stackId="revenue"
+                maxBarSize={64}
               >
                 {chartData.map((_, cellIdx) => (
                   <Cell
