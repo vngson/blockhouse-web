@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
+    "baseUrl": "src",
+    "typeRoots": ["../../node_modules/@types"],
+    "types": ["react", "react-dom"],
+    "paths": {
+      "@/*": ["./*"]
+    }
+  },
+  
+  "include": ["src"],
+  "exclude": ["node_modules", "dist", "webpack"]
+}

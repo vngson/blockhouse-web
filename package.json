@@ -1,0 +1,26 @@
+{
+    "name": "blockhouse-web",
+    "version": "1.0.0",
+    "private": true,
+    "workspaces": [
+        "packages/*"
+    ],
+    "scripts": {
+        "start": "concurrently \"npm run start:shared\" \"npm run start:host\" \"npm run start:dashboard\" \"npm run start:employees\" \"npm run start:revenue\" \"npm run start:services\"",
+        "start:shared": "npm run start --workspace=packages/shared-lib",
+        "start:host": "npm run start --workspace=packages/host",
+        "start:dashboard": "npm run start --workspace=packages/mf-dashboard",
+        "start:employees": "npm run start --workspace=packages/mf-employees",
+        "start:revenue": "npm run start --workspace=packages/mf-revenue",
+        "start:services": "npm run start --workspace=packages/mf-services",
+        "build": "npm run build --workspace=packages/shared-lib && concurrently \"npm run build --workspace=packages/mf-dashboard\" \"npm run build --workspace=packages/mf-employees\" \"npm run build--workspace=packages/mf-revenue\" \"npm run build --workspace=packages/mf-services\" && npm run build --workspace=packages/host",
+        "test": "npm run test --workspaces",
+        "lint": "eslint packages/*/src/**/*.{ts,tsx}",
+        "format": "prettier --write \"packages/*/src/**/*.{ts,tsx}\""
+    },
+    "devDependencies": {
+        "@types/enzyme": "^3.10.19",
+        "@types/jest": "^30.0.0",
+        "concurrently": "^8.0.0"
+    }
+}
