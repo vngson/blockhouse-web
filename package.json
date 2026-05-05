@@ -22,5 +22,8 @@
         "@types/enzyme": "^3.10.19",
         "@types/jest": "^30.0.0",
         "concurrently": "^8.0.0"
+    },
+    "dependencies": {
+        "recharts": "^3.8.1"
     }
 }

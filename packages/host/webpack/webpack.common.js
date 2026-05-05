@@ -11,6 +11,9 @@ const path = require('path');
     },
     resolve: {
       extensions: ['.ts', '.tsx', '.js', '.jsx'],
+      alias: {
+        '@blockhouse/shared-lib': path.resolve(__dirname, '../../shared-lib/src'),
+      },
     },
     module: {
       rules: [
@@ -18,6 +21,10 @@ const path = require('path');
           test: /\.(ts|tsx)$/,
           exclude: /node_modules/,
           use: 'babel-loader',
+        },
+        {
+          test: /\.(png|jpe?g|gif|svg)$/,
+          type: 'asset/resource',
         },
       ],
     },

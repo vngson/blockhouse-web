@@ -10,7 +10,7 @@
 
 
   // Theme
-  export { theme } from './theme/theme';
+  export { createAppTheme, lightTheme, darkTheme } from './theme/theme';
 
   // Hooks
   export { useDebounce } from './hooks/useDebounce';

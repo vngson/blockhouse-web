@@ -1,3 +1,3 @@
-export { palette } from './palette';
+export { getPalette } from './palette';
 export { typography } from './typography';
-export { theme } from './theme';
+export { createAppTheme, lightTheme, darkTheme } from './theme';

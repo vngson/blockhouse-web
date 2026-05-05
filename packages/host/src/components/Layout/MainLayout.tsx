@@ -3,7 +3,7 @@ import React, { useState } from 'react';
   import Sidebar from './Sidebar';
   import Header from './Header';
 
-  const SIDEBAR_WIDTH = 240;
+  const SIDEBAR_WIDTH = 260;
 
   interface MainLayoutProps {
     children: React.ReactNode;
@@ -13,17 +13,25 @@ import React, { useState } from 'react';
     const [sidebarOpen, setSidebarOpen] = useState(true);
 
     return (
-      <Box sx={{ display: 'flex', minHeight: '100vh' }}>
+      <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'background.default' }}>
         <Sidebar open={sidebarOpen} width={SIDEBAR_WIDTH} />
         <Box
           sx={{
             flexGrow: 1,
-            ml: sidebarOpen ? `${SIDEBAR_WIDTH}px` : 0,
-            transition: 'margin 0.3s',
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            display: 'flex',
+            flexDirection: 'column',
+            minHeight: '100vh',
           }}
         >
           <Header onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
-          <Box component="main" sx={{ p: 3 }}>
+          <Box
+            component="main"
+            sx={{
+              flex: 1,
+              p: 3,
+            }}
+          >
             {children}
           </Box>
         </Box>
