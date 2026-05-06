@@ -24,7 +24,7 @@ import FilterListOffIcon from '@mui/icons-material/FilterListOff';
 import CloseIcon from '@mui/icons-material/Close';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 
-interface EmployeeSearchProps {
+interface OrderSearchProps {
   keyword: string;
   onKeywordChange: (value: string) => void;
   dateFrom: string;
@@ -39,7 +39,7 @@ function formatDateLabel(dateStr: string) {
   return dayjs(dateStr).format('DD/MM/YYYY');
 }
 
-export default function EmployeeSearch({
+export default function OrderSearch({
   keyword,
   onKeywordChange,
   dateFrom,
@@ -47,7 +47,7 @@ export default function EmployeeSearch({
   onDateFromChange,
   onDateToChange,
   onClearAll,
-}: EmployeeSearchProps) {
+}: OrderSearchProps) {
   const theme = useTheme();
   const isDark = theme.palette.mode === 'dark';
   const [expanded, setExpanded] = useState(false);
@@ -60,29 +60,20 @@ export default function EmployeeSearch({
       borderRadius: 2.5,
       bgcolor: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.02)',
       transition: 'all 0.25s ease',
-      '& fieldset': {
-        borderColor: 'transparent',
-      },
+      '& fieldset': { borderColor: 'transparent' },
       '&:hover': {
         bgcolor: isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.04)',
-        '& fieldset': {
-          borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)',
-        },
+        '& fieldset': { borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)' },
       },
       '&.Mui-focused': {
         bgcolor: isDark ? 'rgba(255,255,255,0.06)' : '#fff',
         boxShadow: isDark
           ? '0 0 0 2px rgba(66,165,245,0.25)'
           : '0 0 0 2px rgba(25,118,210,0.15)',
-        '& fieldset': {
-          borderColor: `${theme.palette.primary.main} !important`,
-        },
+        '& fieldset': { borderColor: `${theme.palette.primary.main} !important` },
       },
     },
-    '& .MuiOutlinedInput-input': {
-      fontSize: 14,
-      py: 1,
-    },
+    '& .MuiOutlinedInput-input': { fontSize: 14, py: 1 },
   };
 
   const datePickerSx = {
@@ -92,42 +83,29 @@ export default function EmployeeSearch({
       bgcolor: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.02)',
       transition: 'all 0.25s ease',
       fontSize: 14,
-      '& fieldset': {
-        borderColor: 'transparent',
-      },
+      '& fieldset': { borderColor: 'transparent' },
       '&:hover': {
         bgcolor: isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.04)',
-        '& fieldset': {
-          borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)',
-        },
+        '& fieldset': { borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)' },
       },
       '&.Mui-focused': {
         bgcolor: isDark ? 'rgba(255,255,255,0.06)' : '#fff',
         boxShadow: isDark
           ? '0 0 0 2px rgba(66,165,245,0.25)'
           : '0 0 0 2px rgba(25,118,210,0.15)',
-        '& fieldset': {
-          borderColor: `${theme.palette.primary.main} !important`,
-        },
+        '& fieldset': { borderColor: `${theme.palette.primary.main} !important` },
       },
     },
     '& .MuiInputLabel-root': {
       fontSize: 13,
-      '&.Mui-focused': {
-        color: theme.palette.primary.main,
-        fontWeight: 500,
-      },
+      '&.Mui-focused': { color: theme.palette.primary.main, fontWeight: 500 },
     },
     '& .MuiIconButton-root': {
       color: dateFrom || dateTo ? theme.palette.primary.main : 'text.secondary',
       transition: 'color 0.2s',
-      '&:hover': {
-        bgcolor: isDark ? 'rgba(66,165,245,0.08)' : 'rgba(25,118,210,0.06)',
-      },
+      '&:hover': { bgcolor: isDark ? 'rgba(66,165,245,0.08)' : 'rgba(25,118,210,0.06)' },
     },
-    '& .MuiInputAdornment-root': {
-      ml: 0.5,
-    },
+    '& .MuiInputAdornment-root': { ml: 0.5 },
   };
 
   return (
@@ -143,14 +121,13 @@ export default function EmployeeSearch({
           backdropFilter: 'blur(8px)',
         }}
       >
-        {/* Search row */}
         <Box display="flex" alignItems="center" gap={1.5} flexWrap="wrap">
           <Box sx={{ flex: 1, minWidth: 260 }}>
             <TextField
               size="small"
               value={keyword}
               onChange={(e) => onKeywordChange(e.target.value)}
-              placeholder="Tìm nhân viên theo tên, SĐT..."
+              placeholder="Tìm đơn hàng theo nhân viên..."
               fullWidth
               InputProps={{
                 startAdornment: (
@@ -193,9 +170,7 @@ export default function EmployeeSearch({
                     color: theme.palette.primary.main,
                     '&:hover': {
                       borderColor: theme.palette.primary.main,
-                      bgcolor: isDark
-                        ? 'rgba(66,165,245,0.08)'
-                        : 'rgba(25,118,210,0.06)',
+                      bgcolor: isDark ? 'rgba(66,165,245,0.08)' : 'rgba(25,118,210,0.06)',
                     },
                   }),
               }}
@@ -209,10 +184,7 @@ export default function EmployeeSearch({
                   onClick={onClearAll}
                   sx={{
                     bgcolor: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)',
-                    '&:hover': {
-                      bgcolor: theme.palette.error.main,
-                      color: '#fff',
-                    },
+                    '&:hover': { bgcolor: theme.palette.error.main, color: '#fff' },
                     transition: 'all 0.2s',
                   }}
                 >
@@ -223,7 +195,6 @@ export default function EmployeeSearch({
           </Box>
         </Box>
 
-        {/* Date filters */}
         <Collapse in={expanded}>
           <Box
             display="flex"
@@ -232,9 +203,7 @@ export default function EmployeeSearch({
             alignItems="center"
             mt={2}
             pt={2}
-            sx={{
-              borderTop: `1px solid ${isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)'}`,
-            }}
+            sx={{ borderTop: `1px solid ${isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)'}` }}
           >
             <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="vi">
               <DatePicker
@@ -246,13 +215,8 @@ export default function EmployeeSearch({
                 format="DD/MM/YYYY"
                 maxDate={dayjs()}
                 slotProps={{
-                  textField: {
-                    size: 'small',
-                    sx: datePickerSx,
-                  },
-                  openPickerButton: {
-                    sx: { p: 0.5 },
-                  },
+                  textField: { size: 'small', sx: datePickerSx },
+                  openPickerButton: { sx: { p: 0.5 } },
                 }}
               />
               <DatePicker
@@ -265,13 +229,8 @@ export default function EmployeeSearch({
                 minDate={dateFrom ? dayjs(dateFrom) : undefined}
                 maxDate={dayjs()}
                 slotProps={{
-                  textField: {
-                    size: 'small',
-                    sx: datePickerSx,
-                  },
-                  openPickerButton: {
-                    sx: { p: 0.5 },
-                  },
+                  textField: { size: 'small', sx: datePickerSx },
+                  openPickerButton: { sx: { p: 0.5 } },
                 }}
               />
             </LocalizationProvider>
@@ -279,7 +238,6 @@ export default function EmployeeSearch({
         </Collapse>
       </Paper>
 
-      {/* Active filter chips */}
       {hasActiveFilters && (
         <Box display="flex" gap={1} flexWrap="wrap" mt={1.5}>
           {dateFrom && (
@@ -293,21 +251,14 @@ export default function EmployeeSearch({
               sx={{
                 borderRadius: 2,
                 fontWeight: 500,
-                px: 0.5,
-                py: 1,
-                height: 'auto',
-                '& .MuiChip-label': { px: 1 },
                 borderColor: isDark ? 'rgba(66,165,245,0.3)' : 'rgba(25,118,210,0.2)',
                 color: theme.palette.text.primary,
                 bgcolor: 'transparent',
-                '& .MuiChip-icon': {
-                  color: theme.palette.primary.main,
-                  ml: 1,
-                },
+                '& .MuiChip-icon': { color: theme.palette.primary.main, ml: 1 },
                 '& .MuiChip-deleteIcon': {
                   color: 'text.secondary',
-                  mr: 0.5,
                   transition: 'all 0.2s',
+                  mr: 0.5,
                   '&:hover': {
                     color: theme.palette.error.main,
                     bgcolor: isDark ? 'rgba(239,83,80,0.12)' : 'rgba(211,47,47,0.08)',
@@ -333,21 +284,14 @@ export default function EmployeeSearch({
               sx={{
                 borderRadius: 2,
                 fontWeight: 500,
-                px: 0.5,
-                py: 1,
-                height: 'auto',
-                '& .MuiChip-label': { px: 1 },
                 borderColor: isDark ? 'rgba(66,165,245,0.3)' : 'rgba(25,118,210,0.2)',
                 color: theme.palette.text.primary,
                 bgcolor: 'transparent',
-                '& .MuiChip-icon': {
-                  color: theme.palette.primary.main,
-                  ml: 1,
-                },
+                '& .MuiChip-icon': { color: theme.palette.primary.main, ml: 1 },
                 '& .MuiChip-deleteIcon': {
                   color: 'text.secondary',
-                  mr: 0.5,
                   transition: 'all 0.2s',
+                  mr: 0.5,
                   '&:hover': {
                     color: theme.palette.error.main,
                     bgcolor: isDark ? 'rgba(239,83,80,0.12)' : 'rgba(211,47,47,0.08)',

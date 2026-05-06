@@ -11,6 +11,7 @@ export const API_ENDPOINTS = {
     ORDER_BY_ID: (id: number) => `/api/v1/orders/${id}`,
     ORDER_FOR_ONE_DATE: '/api/v1/orders/for_one_date',
     ORDER_BY_DATE_AND_EMPLOYEE: '/api/v1/orders/by_date_and_employee',
+    REVENUE_MONTHLY_BY_EMPLOYEE: '/api/v1/orders/revenue_monthly_by_employee',
     CREATE_ORDER: '/api/v1/orders/create',
 
     SERVICES: '/api/v1/service',

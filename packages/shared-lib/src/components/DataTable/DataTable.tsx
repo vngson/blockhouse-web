@@ -36,6 +36,7 @@ import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper
 
     return (
       <>
+        <Pagination page={page} totalItems={totalItems} pageSize={pageSize} onPageChange={onPageChange} />
         <TableContainer component={Paper}>
           <Table>
             <TableHead>
@@ -67,7 +68,6 @@ import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper
             </TableBody>
           </Table>
         </TableContainer>
-        <Pagination page={page} totalItems={totalItems} pageSize={pageSize} onPageChange={onPageChange} />
       </>
     );
   }
