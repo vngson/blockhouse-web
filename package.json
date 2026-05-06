@@ -24,6 +24,8 @@
         "concurrently": "^8.0.0"
     },
     "dependencies": {
-        "recharts": "^3.8.1"
+        "@hookform/resolvers": "^5.2.2",
+        "recharts": "^3.8.1",
+        "zod": "^4.4.3"
     }
 }

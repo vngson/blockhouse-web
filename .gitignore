@@ -1,2 +1,2 @@
-/node_modules
-/packages/mf-dashboard/node_modules
+node_modules/
+**/node_modules/

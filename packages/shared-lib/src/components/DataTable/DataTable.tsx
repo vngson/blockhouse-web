@@ -30,7 +30,7 @@ import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper
     onRowClick,
     emptyMessage = 'Không có dữ liệu',
   }: DataTableProps<T>) {
-    if (data.length === 0) {
+    if (!data || data.length === 0) {
       return <EmptyState message={emptyMessage} />;
     }
 

@@ -1,5 +1,5 @@
 // API
-  export { default as apiClient } from './api/client';
+  export { default as apiClient, loadingEvents } from './api/client';
   export { API_ENDPOINTS } from './api/endpoints';
   export type { ApiResponse, PaginatedResponse } from './api/types';
   // Utils

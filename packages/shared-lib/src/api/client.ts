@@ -1,21 +1,56 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 
-  const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 
-  const apiClient: AxiosInstance = axios.create({
-    baseURL: BASE_URL,
-    timeout: 10000,
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
+const apiClient: AxiosInstance = axios.create({
+  baseURL: BASE_URL,
+  timeout: 10000,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
 
-  apiClient.interceptors.response.use(
-    (response: AxiosResponse) => response,
-    (error) => {
-      const message = error.response?.data?.message || 'Lỗi kết nối server';
-      return Promise.reject(new Error(message));
+apiClient.interceptors.request.use((config) => {
+  loadingEvents.emit('start');
+  return config;
+});
+
+apiClient.interceptors.response.use(
+  (response: AxiosResponse) => {
+    loadingEvents.emit('stop');
+    return response;
+  },
+  (error) => {
+    loadingEvents.emit('stop');
+    const message = error.response?.data?.message || 'Lỗi kết nối server';
+    return Promise.reject(new Error(message));
+  }
+);
+
+type LoadingListener = (loading: boolean) => void;
+
+class LoadingEventEmitter {
+  private listeners: LoadingListener[] = [];
+  private activeRequests = 0;
+
+  on(listener: LoadingListener) {
+    this.listeners.push(listener);
+    return () => {
+      this.listeners = this.listeners.filter((l) => l !== listener);
+    };
+  }
+
+  emit(event: 'start' | 'stop') {
+    if (event === 'start') {
+      this.activeRequests++;
+    } else {
+      this.activeRequests = Math.max(0, this.activeRequests - 1);
     }
-  );
+    const isLoading = this.activeRequests > 0;
+    this.listeners.forEach((l) => l(isLoading));
+  }
+}
 
-  export default apiClient;
+export const loadingEvents = new LoadingEventEmitter();
+
+export default apiClient;
