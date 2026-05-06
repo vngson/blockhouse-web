@@ -20,6 +20,10 @@ import {
   LinearProgress,
   Pagination as MuiPagination,
   useTheme,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Select,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
@@ -37,6 +41,7 @@ import OrderCreateForm from '../components/OrderForm/OrderCreateForm';
 import OrderEditForm from '../components/OrderForm/OrderEditForm';
 import { Order, OrderByDate, OrderByEmployeeAndDate, MonthlyRevenueRecord } from '../types/revenue.types';
 import { OrderFormValues } from '../components/OrderForm/formSchema';
+import dayjs from 'dayjs';
 
 interface SimpleEmployee { id: number; name: string }
 interface SimpleService { id: number; name: string; price: number }
@@ -73,10 +78,11 @@ export default function RevenuePage() {
   const theme = useTheme();
   const isDark = theme.palette.mode === 'dark';
 
-  const { page, pageSize, setPage } = usePagination(10);
+  const { page, pageSize, setPage } = usePagination(activeTab === 'monthly' ? 10 : 10);
   const [keyword, setKeyword] = useState('');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   const debouncedKeyword = useDebounce(keyword, 300);
 
   const [employees, setEmployees] = useState<SimpleEmployee[]>([]);
@@ -123,8 +129,27 @@ export default function RevenuePage() {
     if (activeTab === 'all') fetchOrders(params);
     else if (activeTab === 'by_date') fetchOrdersByDate(params);
     else if (activeTab === 'by_employee') fetchRevenueByEmployee(params);
-    else fetchMonthlyRevenue(params);
-  }, [page, pageSize, debouncedKeyword, dateFrom, dateTo, activeTab, fetchOrders, fetchOrdersByDate, fetchRevenueByEmployee, fetchMonthlyRevenue]);
+    else {
+      const year = new Date().getFullYear();
+      const monthStart = dayjs()
+        .year(year)
+        .month(selectedMonth - 1)
+        .startOf('month')
+        .format('YYYY-MM-DD');
+
+      const monthEnd = dayjs()
+        .year(year)
+        .month(selectedMonth - 1)
+        .endOf('month')
+        .format('YYYY-MM-DD');
+      const formatDate = (d: Date) => d.toISOString().split('T')[0];
+      fetchMonthlyRevenue({
+        ...params,
+        date_from: monthStart,
+        date_to: monthEnd,
+      });
+    }
+  }, [page, pageSize, debouncedKeyword, dateFrom, dateTo, activeTab, fetchOrders, fetchOrdersByDate, fetchRevenueByEmployee, fetchMonthlyRevenue, selectedMonth]);
 
   useEffect(() => {
     loadOrders();
@@ -263,7 +288,7 @@ export default function RevenuePage() {
         <Tabs
           value={activeTab}
           onChange={handleTabChange}
-          variant="scrollable"
+          variant="fullWidth"
           scrollButtons="auto"
           sx={{
             minHeight: 48,
@@ -339,15 +364,32 @@ export default function RevenuePage() {
             />
           )}
           {activeTab === 'monthly' && (
-            <MonthlyRevenueTable
-              data={monthlyRevenue}
-              page={page}
-              total={totalMonthlyRecords}
-              pageSize={pageSize}
-              onPageChange={setPage}
-              loading={isLoading}
-              isDark={isDark}
-            />
+            <>
+              <Box display="flex" justifyContent="flex-end" mb={2}>
+                <FormControl size="small" sx={{ minWidth: 140 }}>
+                  <InputLabel>Chọn tháng</InputLabel>
+                  <Select
+                    value={selectedMonth}
+                    label="Chọn tháng"
+                    onChange={(e) => setSelectedMonth(e.target.value as number)}
+                  >
+                    {MONTH_NAMES.map((name, idx) => (
+                      <MenuItem key={idx + 1} value={idx + 1}>{name}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Box>
+              <MonthlyRevenueTable
+                data={monthlyRevenue}
+                page={page}
+                total={totalMonthlyRecords}
+                pageSize={pageSize}
+                onPageChange={setPage}
+                loading={isLoading}
+                isDark={isDark}
+                selectedMonth={selectedMonth}
+              />
+            </>
           )}
         </Box>
       </Fade>
@@ -513,9 +555,9 @@ function OrderByEmployeeTable({ data, page, total, pageSize, onPageChange, loadi
   );
 }
 
-function MonthlyRevenueTable({ data, page, total, pageSize, onPageChange, loading, isDark }: {
+function MonthlyRevenueTable({ data, page, total, pageSize, onPageChange, loading, isDark, selectedMonth }: {
   data: MonthlyRevenueRecord[]; page: number; total: number; pageSize: number;
-  onPageChange: (p: number) => void; loading?: boolean; isDark: boolean;
+  onPageChange: (p: number) => void; loading?: boolean; isDark: boolean; selectedMonth: number;
 }) {
   // Detect year from data, fallback to current year
   const displayYear = data.length > 0 ? data[0].year : new Date().getFullYear();
@@ -531,77 +573,69 @@ function MonthlyRevenueTable({ data, page, total, pageSize, onPageChange, loadin
   });
 
   const employees = Array.from(employeeMap.entries());
-  const stickyBg = isDark ? '#1e1e1e' : '#fafafa';
   const borderClr = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)';
   const headBorder = `2px solid ${isDark ? 'rgba(245,124,0,0.12)' : 'rgba(230,81,0,0.12)'}`;
   const cellSx = { borderBottom: `1px solid ${borderClr}` };
-  const stickySx = { position: 'sticky', left: 0, bgcolor: stickyBg, zIndex: 1, ...cellSx };
 
-  // Always 12 months
-  const months = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+  const startIdx = (page - 1) * pageSize;
+  const endIdx = startIdx + pageSize;
+  const paginatedEmployees = employees.slice(startIdx, endIdx);
 
   return (
     <Box>
       <TablePagination page={page} total={total} pageSize={pageSize} onPageChange={onPageChange} />
-      <Paper sx={{ borderRadius: 3, overflow: 'hidden', border: `1px solid ${isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)'}` }}>
+      <Paper sx={{ borderRadius: 3, border: `1px solid ${isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)'}` }}>
         {loading && data.length > 0 && <Box sx={{ height: 3 }}><LinearProgress /></Box>}
-        <Box sx={{ overflowX: 'auto' }}>
-          <Table>
-            <TableHead>
-              <TableRow sx={{ bgcolor: isDark ? 'rgba(245,124,0,0.06)' : 'rgba(230,81,0,0.04)' }}>
-                <TableCell sx={{ fontWeight: 700, fontSize: 13, bgcolor: stickyBg, zIndex: 2, position: 'sticky', left: 0, borderBottom: headBorder, minWidth: 160 }}>
-                  Nhân viên
-                </TableCell>
-                {months.map((m) => (
-                  <TableCell key={m} align="right" sx={{ fontWeight: 700, fontSize: 12, whiteSpace: 'nowrap', borderBottom: headBorder, minWidth: 120 }}>
-                    {MONTH_NAMES[m - 1]}
-                  </TableCell>
-                ))}
-                <TableCell align="right" sx={{ fontWeight: 700, fontSize: 13, borderBottom: headBorder, minWidth: 150 }}>
-                  Tổng cộng
+        <Table>
+          <TableHead>
+            <TableRow sx={{ bgcolor: isDark ? 'rgba(245,124,0,0.06)' : 'rgba(230,81,0,0.04)' }}>
+              <TableCell sx={{ fontWeight: 700, fontSize: 13, borderBottom: headBorder }}>
+                Nhân viên
+              </TableCell>
+              <TableCell align="right" sx={{ fontWeight: 700, fontSize: 13, borderBottom: headBorder, minWidth: 150 }}>
+                {MONTH_NAMES[selectedMonth - 1]}
+              </TableCell>
+              <TableCell align="right" sx={{ fontWeight: 700, fontSize: 13, borderBottom: headBorder, minWidth: 120 }}>
+                Số đơn
+              </TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {employees.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={3} align="center" sx={{ py: 6 }}>
+                  <Typography color="text.secondary">Không có dữ liệu doanh thu tháng</Typography>
                 </TableCell>
               </TableRow>
-            </TableHead>
-            <TableBody>
-              {employees.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={14} align="center" sx={{ py: 6 }}>
-                    <Typography color="text.secondary">Không có dữ liệu doanh thu tháng</Typography>
+            ) : paginatedEmployees.map(([empId, emp]) => {
+              const entry = emp.months.get(selectedMonth);
+              const rev = entry?.total ?? 0;
+              const orderCount = entry?.order_count ?? 0;
+              return (
+                <TableRow key={empId} hover sx={{ transition: 'background-color 0.2s' }}>
+                  <TableCell>
+                    <Box display="flex" alignItems="center" gap={1}>
+                      <Avatar sx={{ width: 28, height: 28, fontSize: 12, fontWeight: 600, bgcolor: 'primary.main', color: '#fff' }}>
+                        {emp.name?.charAt(0).toUpperCase() || '?'}
+                      </Avatar>
+                      <Typography fontWeight={500}>{emp.name}</Typography>
+                    </Box>
+                  </TableCell>
+                  <TableCell align="right" sx={cellSx}>
+                    <Typography fontWeight={rev > 0 ? 600 : 400} color={rev > 0 ? 'primary' : 'text.disabled'} fontSize={13}>
+                      {rev > 0 ? formatCurrency(rev) : '—'}
+                    </Typography>
+                  </TableCell>
+                  <TableCell align="right" sx={cellSx}>
+                    <Typography fontWeight={rev > 0 ? 600 : 400} color={rev > 0 ? 'text.primary' : 'text.disabled'} fontSize={13}>
+                      {orderCount > 0 ? orderCount : '—'}
+                    </Typography>
                   </TableCell>
                 </TableRow>
-              ) : employees.map(([empId, emp]) => {
-                let rowTotal = 0;
-                return (
-                  <TableRow key={empId} hover sx={{ transition: 'background-color 0.2s' }}>
-                    <TableCell sx={stickySx}>
-                      <Box display="flex" alignItems="center" gap={1}>
-                        <Avatar sx={{ width: 28, height: 28, fontSize: 12, fontWeight: 600, bgcolor: 'primary.main', color: '#fff' }}>
-                          {emp.name?.charAt(0).toUpperCase() || '?'}
-                        </Avatar>
-                        <Typography fontWeight={500}>{emp.name}</Typography>
-                      </Box>
-                    </TableCell>
-                    {months.map((m) => {
-                      const entry = emp.months.get(m);
-                      const rev = entry?.total ?? 0;
-                      rowTotal += rev;
-                      return (
-                        <TableCell key={m} align="right" sx={cellSx}>
-                          <Typography fontWeight={rev > 0 ? 600 : 400} color={rev > 0 ? 'primary' : 'text.disabled'} fontSize={13}>
-                            {rev > 0 ? formatCurrency(rev) : '—'}
-                          </Typography>
-                        </TableCell>
-                      );
-                    })}
-                    <TableCell align="right" sx={cellSx}>
-                      <Typography fontWeight={700} color="primary">{formatCurrency(rowTotal)}</Typography>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </Box>
+              );
+            })}
+          </TableBody>
+        </Table>
       </Paper>
     </Box>
   );
