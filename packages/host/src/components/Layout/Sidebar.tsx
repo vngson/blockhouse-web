@@ -28,9 +28,11 @@ import React from 'react';
   interface SidebarProps {
     open: boolean;
     width: number;
+    variant?: 'persistent' | 'temporary';
+    onClose?: () => void;
   }
 
-  export default function Sidebar({ open, width }: SidebarProps) {
+  export default function Sidebar({ open, width, variant = 'persistent', onClose }: SidebarProps) {
     const location = useLocation();
     const navigate = useNavigate();
     const theme = useTheme();                                                                                                              
@@ -42,9 +44,10 @@ import React from 'react';
 
     return (
       <Drawer
-        variant="persistent"
+        variant={variant}
         anchor="left"
         open={open}
+        onClose={onClose}
         sx={{
           width: open ? width : 0,
           flexShrink: 0,

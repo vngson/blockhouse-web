@@ -10,3 +10,4 @@ node_modules/
 !.env.example
 packages/shared-lib/.env.development
 packages/shared-lib/.env.production
+**/dist
