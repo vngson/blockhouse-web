@@ -28,7 +28,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { orderFormSchema, OrderFormValues } from './formSchema';
-import { formatCurrency } from '@blockhouse/shared-lib';
+import { formatCurrency, NumberStepper } from '@blockhouse/shared-lib';
 import { Order } from '../../types/revenue.types';
 
 interface SimpleEmployee { id: number; name: string }
@@ -181,13 +181,19 @@ export default function OrderEditForm({ open, order, onClose, onSubmit, employee
                   />
                 </FormControl>
 
-                <TextField
-                  {...register(`services.${index}.quantity`, { valueAsNumber: true })}
-                  label="SL"
-                  type="number"
-                  size="small"
-                  sx={{ width: 80, ...fieldSx }}
-                  error={!!errors.services?.[index]?.quantity}
+                <Controller
+                  name={`services.${index}.quantity`}
+                  control={control}
+                  render={({ field }) => (
+                    <NumberStepper
+                      value={field.value ?? 1}
+                      onChange={field.onChange}
+                      step={1}
+                      min={1}
+                      size="small"
+                      width={100}
+                    />
+                  )}
                 />
 
                 <IconButton

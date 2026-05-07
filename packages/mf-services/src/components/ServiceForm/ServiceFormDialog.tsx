@@ -20,10 +20,11 @@ import SpaIcon from '@mui/icons-material/Spa';
 import DescriptionIcon from '@mui/icons-material/Description';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import CheckIcon from '@mui/icons-material/Check';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { serviceFormSchema, ServiceFormValues } from './formSchema';
 import { Service } from '../../types/service.types';
+import { NumberStepper } from '@blockhouse/shared-lib';
 
 interface ServiceFormDialogProps {
   open: boolean;
@@ -41,6 +42,7 @@ export default function ServiceFormDialog({ open, mode, service, onClose, onSubm
     register,
     handleSubmit,
     reset,
+    control,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(serviceFormSchema),
@@ -143,32 +145,30 @@ export default function ServiceFormDialog({ open, mode, service, onClose, onSubm
               }}
               sx={fieldSx}
             />
-            <TextField
-              {...register('price', { valueAsNumber: true })}
-              label="Giá (VNĐ)"
-              type="number"
-              error={!!errors.price}
-              helperText={errors.price?.message || 'Ví dụ: 50000'}
-              fullWidth
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <AttachMoneyIcon fontSize="small" color="action" />
-                  </InputAdornment>
-                ),
-              }}
-              sx={{
-                ...fieldSx,
-                '& input[type=number]::-webkit-outer-spin-button, & input[type=number]::-webkit-inner-spin-button':
-                  {
-                    WebkitAppearance: 'none',
-                    margin: 0,
-                  },
-                '& input[type=number]': {
-                  MozAppearance: 'textfield',
-                },
-              }}
-            />
+            <Box>
+              <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: 'block' }}>
+                Giá (VNĐ)
+              </Typography>
+              <Controller
+                name="price"
+                control={control}
+                render={({ field }) => (
+                  <NumberStepper
+                    value={Number(field.value) || 0}
+                    onChange={field.onChange}
+                    step={1000}
+                    min={1000}
+                    width="100%"
+                    size="medium"
+                  />
+                )}
+              />
+              {(errors.price?.message) && (
+                <Typography variant="caption" color="error" sx={{ mt: 0.5, display: 'block' }}>
+                  {errors.price.message}
+                </Typography>
+              )}
+            </Box>
           </Stack>
         </DialogContent>
 

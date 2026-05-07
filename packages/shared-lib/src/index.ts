@@ -24,3 +24,4 @@
   export { StatusBadge } from './components/StatusBadge';
   export { LoadingOverlay } from './components/LoadingOverlay';
   export { EmptyState } from './components/EmptyState';
+  export { NumberStepper } from './components/NumberStepper';

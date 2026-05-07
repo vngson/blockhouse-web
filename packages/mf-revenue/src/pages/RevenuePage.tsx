@@ -106,12 +106,14 @@ export default function RevenuePage() {
       try {
         const [empRes, svcRes] = await Promise.all([
           apiClient.post<{ data: { employees: SimpleEmployee[] } }>(API_ENDPOINTS.EMPLOYEES, { page: 1, page_size: 200 }),
-          apiClient.get<{ data: SimpleService[] }>(API_ENDPOINTS.SERVICES_ALL),
+          apiClient.get<{ data: SimpleService[] | { services: SimpleService[] } }>(API_ENDPOINTS.SERVICES_ALL),
         ]);
         setEmployees(empRes.data.data?.employees ?? []);
-        setServices(Array.isArray(svcRes.data.data) ? svcRes.data.data : []);
-      } catch {
-        // silently fail
+        const svcRaw = svcRes.data.data ?? svcRes.data;
+        const svcArray = Array.isArray(svcRaw) ? svcRaw : (Array.isArray((svcRaw as any)?.services) ? (svcRaw as any).services : []);
+        setServices(svcArray);
+      } catch (err) {
+        console.error('Failed to load form data:', err);
       }
     };
     loadFormData();

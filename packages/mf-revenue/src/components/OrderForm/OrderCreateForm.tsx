@@ -29,7 +29,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { orderFormSchema, OrderFormValues } from './formSchema';
-import { formatCurrency } from '@blockhouse/shared-lib';
+import { formatCurrency, NumberStepper } from '@blockhouse/shared-lib';
 import dayjs from 'dayjs';
 
 interface SimpleEmployee {
@@ -170,7 +170,7 @@ export default function OrderCreateForm({ open, onClose, onSubmit, employees, se
             </Box>
 
             {fields.map((field, index) => (
-              <Box key={field.id} display="flex" gap={1.5} alignItems="flex-start">
+              <Box key={field.id} display="flex" gap={1.5} alignItems="center">
                 <FormControl sx={{ flex: 1 }} error={!!errors.services?.[index]?.service_id}>
                   <InputLabel size="small">Dịch vụ</InputLabel>
                   <Controller
@@ -189,13 +189,19 @@ export default function OrderCreateForm({ open, onClose, onSubmit, employees, se
                   />
                 </FormControl>
 
-                <TextField
-                  {...register(`services.${index}.quantity`, { valueAsNumber: true })}
-                  label="SL"
-                  type="number"
-                  size="small"
-                  sx={{ width: 80, ...fieldSx }}
-                  error={!!errors.services?.[index]?.quantity}
+                <Controller
+                  name={`services.${index}.quantity`}
+                  control={control}
+                  render={({ field }) => (
+                    <NumberStepper
+                      value={field.value ?? 1}
+                      onChange={field.onChange}
+                      step={1}
+                      min={1}
+                      size="small"
+                      width={150}
+                    />
+                  )}
                 />
 
                 <IconButton
