@@ -1,6 +1,8 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+// Webpack DefinePlugin replaces process.env.VITE_API_BASE_URL at build time.
+// In Jest, setupTests.ts sets this value.
+const BASE_URL = (typeof process !== 'undefined' && process.env?.VITE_API_BASE_URL) || 'http://localhost:5000';
 
 const apiClient: AxiosInstance = axios.create({
   baseURL: BASE_URL,

@@ -35,7 +35,7 @@ export default function NumberStepper({
   const clamp = useCallback(
     (v: number) => {
       if (min !== undefined && v < min) return min;
-      if (max !== undefined && v > max) return v;
+      if (max !== undefined && v > max) return max;
       return v;
     },
     [min, max],
