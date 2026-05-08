@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, AxiosResponse } from 'axios';
+import axios, { AxiosInstance } from 'axios';
 
 // Webpack DefinePlugin replaces process.env.VITE_API_BASE_URL at build time.
 // In Jest, setupTests.ts sets this value.
@@ -18,9 +18,9 @@ apiClient.interceptors.request.use((config) => {
 });
 
 apiClient.interceptors.response.use(
-  (response: AxiosResponse) => {
+  (response) => {
     loadingEvents.emit('stop');
-    return response;
+    return response.data;
   },
   (error) => {
     loadingEvents.emit('stop');

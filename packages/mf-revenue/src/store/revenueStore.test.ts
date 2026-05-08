@@ -10,7 +10,8 @@ describe('revenueStore', () => {
     useRevenueStore.setState({
       orders: [], totalOrders: 0, ordersByDate: [], totalDays: 0,
       ordersByEmployee: [], totalDateEmployees: 0, monthlyRevenue: [], totalMonthlyRecords: 0,
-      selectedOrder: null, isLoading: false, error: null, activeTab: 'all',
+      selectedOrder: null, isLoading: false, isMutating: false, error: null, activeTab: 'all',
+      lastFetchParams: null, lastMonthParams: null,
     });
   });
 
@@ -19,6 +20,7 @@ describe('revenueStore', () => {
     expect(state.orders).toEqual([]);
     expect(state.activeTab).toBe('all');
     expect(state.isLoading).toBe(false);
+    expect(state.isMutating).toBe(false);
     expect(state.error).toBeNull();
   });
 

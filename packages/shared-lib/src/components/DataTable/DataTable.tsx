@@ -1,4 +1,5 @@
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
+import React, { useCallback } from 'react';
+  import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
   import { EmptyState } from '../EmptyState';
   import { Pagination } from './Pagination';
 
@@ -20,7 +21,11 @@ import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper
     emptyMessage?: string;
   }
 
-  export default function DataTable<T extends { id?: number | string }>({
+  function getCellValue<T>(row: T, key: string): unknown {
+    return (row as Record<string, unknown>)[key];
+  }
+
+  function DataTableInner<T extends { id?: number | string }>({
     columns,
     data,
     page,
@@ -30,6 +35,11 @@ import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper
     onRowClick,
     emptyMessage = 'Không có dữ liệu',
   }: DataTableProps<T>) {
+    const handleRowClick = useCallback(
+      (row: T) => () => onRowClick?.(row),
+      [onRowClick],
+    );
+
     if (!data || data.length === 0) {
       return <EmptyState message={emptyMessage} />;
     }
@@ -53,14 +63,12 @@ import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper
                 <TableRow
                   key={row.id ?? idx}
                   hover={!!onRowClick}
-                  onClick={() => onRowClick?.(row)}
+                  onClick={handleRowClick(row)}
                   sx={onRowClick ? { cursor: 'pointer' } : {}}
                 >
                   {columns.map((col) => (
                     <TableCell key={col.key}>
-                      {col.render
-                        ? col.render(row)
-                        : (row as Record<string, unknown>)[col.key] as React.ReactNode}
+                      {col.render ? col.render(row) : (getCellValue(row, col.key) as React.ReactNode)}
                     </TableCell>
                   ))}
                 </TableRow>
@@ -71,3 +79,9 @@ import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper
       </>
     );
   }
+
+  const DataTable = React.memo(DataTableInner) as <T extends { id?: number | string }>(
+    props: DataTableProps<T>,
+  ) => React.ReactElement | null;
+
+  export default DataTable;

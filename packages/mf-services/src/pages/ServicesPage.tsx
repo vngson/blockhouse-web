@@ -13,7 +13,7 @@ import {
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import HomeRepairServiceIcon from '@mui/icons-material/HomeRepairService';
-import { usePagination, useDebounce } from '@blockhouse/shared-lib';
+import { usePagination, useDebounce, useRequestAbort } from '@blockhouse/shared-lib';
 import { useServiceStore } from '../store/serviceStore';
 import { SummaryCards } from '../components/SummaryCards';
 import { ServiceSearch } from '../components/ServiceSearch';
@@ -41,6 +41,7 @@ export default function ServicesPage() {
   const { page, pageSize, setPage } = usePagination(10);
   const [keyword, setKeyword] = useState('');
   const debouncedKeyword = useDebounce(keyword, 300);
+  const { getSignal, abort } = useRequestAbort();
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [mode, setMode] = useState<'add' | 'edit'>('add');
@@ -56,12 +57,13 @@ export default function ServicesPage() {
       page,
       page_size: pageSize,
       keyword: debouncedKeyword || undefined,
-    });
-  }, [page, pageSize, debouncedKeyword, fetchServices]);
+    }, { signal: getSignal() });
+  }, [page, pageSize, debouncedKeyword, fetchServices, getSignal]);
 
   useEffect(() => {
     loadServices();
-  }, [loadServices]);
+    return () => abort();
+  }, [loadServices, abort]);
 
   const handleAdd = () => {
     setMode('add');
@@ -76,16 +78,24 @@ export default function ServicesPage() {
   };
 
   const handleSubmit = async (data: { name: string; description: string; price: number }) => {
-    if (mode === 'add') {
-      await createService(data);
-      setSnackbar({ open: true, message: 'Đã thêm dịch vụ thành công!', severity: 'success' });
-    } else if (selectedService) {
-      await updateService(selectedService.id, data);
-      setSnackbar({ open: true, message: 'Đã cập nhật dịch vụ!', severity: 'success' });
+    try {
+      if (mode === 'add') {
+        await createService(data);
+        setSnackbar({ open: true, message: 'Đã thêm dịch vụ thành công!', severity: 'success' });
+      } else if (selectedService) {
+        await updateService(selectedService.id, data);
+        setSnackbar({ open: true, message: 'Đã cập nhật dịch vụ!', severity: 'success' });
+      }
+      setDialogOpen(false);
+      setSelectedService(null);
+      loadServices();
+    } catch (err: unknown) {
+      setSnackbar({
+        open: true,
+        message: err instanceof Error ? err.message : 'Thao tác thất bại',
+        severity: 'error',
+      });
     }
-    setDialogOpen(false);
-    setSelectedService(null);
-    loadServices();
   };
 
   const isInitialLoading = isLoading && services.length === 0;

@@ -40,6 +40,7 @@ const path = require('path');
           '@emotion/styled': { singleton: true, eager: false },
           zustand: { singleton: true, eager: false },
           axios: { singleton: true, eager: false },
+          recharts: { singleton: true, eager: false },
         },
       }),
       new HtmlWebpackPlugin({

@@ -13,7 +13,7 @@ import {
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import PeopleIcon from '@mui/icons-material/People';
-import { usePagination, useDebounce } from '@blockhouse/shared-lib';
+import { usePagination, useDebounce, useRequestAbort } from '@blockhouse/shared-lib';
 import { useEmployeeStore } from '../store/employeeStore';
 import { SummaryCards } from '../components/SummaryCards';
 import { EmployeeSearch } from '../components/EmployeeSearch';
@@ -45,6 +45,7 @@ export default function EmployeesPage() {
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
   const debouncedKeyword = useDebounce(keyword, 300);
+  const { getSignal, abort } = useRequestAbort();
 
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
@@ -64,12 +65,13 @@ export default function EmployeesPage() {
       keyword: debouncedKeyword || undefined,
       date_from: dateFrom || undefined,
       date_to: dateTo || undefined,
-    });
-  }, [page, pageSize, debouncedKeyword, dateFrom, dateTo, fetchEmployees]);
+    }, { signal: getSignal() });
+  }, [page, pageSize, debouncedKeyword, dateFrom, dateTo, fetchEmployees, getSignal]);
 
   useEffect(() => {
     loadEmployees();
-  }, [loadEmployees]);
+    return () => abort();
+  }, [loadEmployees, abort]);
 
   const handleViewDetail = (employee: Employee) => {
     setSelectedEmployee(employee);
@@ -87,26 +89,34 @@ export default function EmployeesPage() {
       statusTarget.status === EmployeeStatus.ACTIVE
         ? EmployeeStatus.INACTIVE
         : EmployeeStatus.ACTIVE;
-    await toggleStatus(statusTarget.id, newStatus);
-    setEditDialogOpen(false);
-    setStatusTarget(null);
-    loadEmployees();
-    setSnackbar({
-      open: true,
-      message: 'Đã cập nhật trạng thái!',
-      severity: 'success',
-    });
+    try {
+      await toggleStatus(statusTarget.id, newStatus);
+      setEditDialogOpen(false);
+      setStatusTarget(null);
+      loadEmployees();
+      setSnackbar({ open: true, message: 'Đã cập nhật trạng thái!', severity: 'success' });
+    } catch (err: unknown) {
+      setSnackbar({
+        open: true,
+        message: err instanceof Error ? err.message : 'Cập nhật thất bại',
+        severity: 'error',
+      });
+    }
   };
 
   const handleCreate = async (data: { name: string; phone: string }) => {
-    await createEmployee(data);
-    setAddDialogOpen(false);
-    loadEmployees();
-    setSnackbar({
-      open: true,
-      message: 'Đã thêm nhân viên thành công!',
-      severity: 'success',
-    });
+    try {
+      await createEmployee(data);
+      setAddDialogOpen(false);
+      loadEmployees();
+      setSnackbar({ open: true, message: 'Đã thêm nhân viên thành công!', severity: 'success' });
+    } catch (err: unknown) {
+      setSnackbar({
+        open: true,
+        message: err instanceof Error ? err.message : 'Thêm nhân viên thất bại',
+        severity: 'error',
+      });
+    }
   };
 
   const handleClearAll = () => {

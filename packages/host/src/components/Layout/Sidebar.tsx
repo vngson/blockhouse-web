@@ -86,6 +86,7 @@ import React from 'react';
             component="img"
             src={logo}
             alt="BlockHouse"
+            loading="lazy"
             sx={{
               width: 44,
               height: 44,

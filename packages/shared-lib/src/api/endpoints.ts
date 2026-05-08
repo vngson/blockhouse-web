@@ -14,9 +14,9 @@ export const API_ENDPOINTS = {
     REVENUE_MONTHLY_BY_EMPLOYEE: '/api/v1/orders/revenue_monthly_by_employee',
     CREATE_ORDER: '/api/v1/orders/create',
 
-    SERVICES: '/api/v1/service',
-    SERVICES_ALL: '/api/v1/service/all',
-    SERVICE_BY_ID: (id: number) => `/api/v1/service/${id}`,
+    SERVICES: '/api/v1/services',
+    SERVICES_ALL: '/api/v1/services/all',
+    SERVICE_BY_ID: (id: number) => `/api/v1/services/${id}`,
 
     HEALTH: '/api/v1/health',
   } as const;

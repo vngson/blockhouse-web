@@ -12,7 +12,7 @@ describe('employeeService', () => {
   it('getEmployees calls POST with params', async () => {
     mockedClient.post.mockResolvedValueOnce({ data: { data: { employees: [], total_employees: 0 } } } as any);
     await employeeService.getEmployees({ page: 1 });
-    expect(mockedClient.post).toHaveBeenCalledWith(API_ENDPOINTS.EMPLOYEES, { page: 1 });
+    expect(mockedClient.post).toHaveBeenCalledWith(API_ENDPOINTS.EMPLOYEES, { page: 1 }, { signal: undefined });
   });
 
   it('getEmployeeById calls GET with correct endpoint', async () => {

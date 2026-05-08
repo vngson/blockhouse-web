@@ -1,13 +1,19 @@
-import { useEffect } from 'react';
+import React, { useEffect, Suspense, lazy } from 'react';
 import { Grid, Box, Typography, Skeleton, useTheme, Avatar } from '@mui/material';
 import WbSunnyIcon from '@mui/icons-material/WbSunny';
 import NightlightIcon from '@mui/icons-material/Nightlight';
 import DashboardRoundedIcon from '@mui/icons-material/DashboardRounded';
+import { useRequestAbort } from '@blockhouse/shared-lib';
 import { useDashboardStore } from '../store/dashboardStore';
 import { TotalRevenueCard, ServiceSalesCard, GrowthPercentCard } from '../components/MetricCards';
 import { TopEmployeeList } from '../components/TopEmployees';
-import { MonthlyRevenueChart } from '../components/DashboardCharts';
 import { MonthSelector } from '../components/MonthSelector';
+
+const MonthlyRevenueChart = lazy(() =>
+  import('../components/DashboardCharts/MonthlyRevenueChart').then((m) => ({
+    default: m.default,
+  }))
+);
 
 function getGreeting(): { text: string; sub: string } {
   const hour = new Date().getHours();
@@ -31,13 +37,15 @@ export default function DashboardPage() {
   const theme = useTheme();
   const { data, isLoading, error, selectedMonth, selectedYear, fetchDashboard, setMonth, setYear } =
     useDashboardStore();
+  const { getSignal, abort } = useRequestAbort();
 
   useEffect(() => {
     fetchDashboard({
       month: selectedMonth ?? undefined,
       year: selectedYear ?? undefined,
-    });
-  }, [selectedMonth, selectedYear, fetchDashboard]);
+    }, { signal: getSignal() });
+    return () => abort();
+  }, [selectedMonth, selectedYear, fetchDashboard, getSignal, abort]);
 
   const today = new Date().toLocaleDateString('vi-VN', {
     weekday: 'long',
@@ -215,7 +223,9 @@ export default function DashboardPage() {
       {/* Chart + Employees */}
       <Grid container spacing={2.5}>
         <Grid item xs={12} lg={8}>
-          <MonthlyRevenueChart data={data.monthly_chart} />
+          <Suspense fallback={<Skeleton variant="rounded" height={450} sx={{ borderRadius: 3 }} />}>
+            <MonthlyRevenueChart data={data.monthly_chart} />
+          </Suspense>
         </Grid>
         <Grid item xs={12} lg={4}>
           <TopEmployeeList employees={data.top_employees} />

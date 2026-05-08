@@ -3,25 +3,26 @@ import apiClient from '@blockhouse/shared-lib/api/client';
   import { Service, ServiceListParams, ServiceListResponse, ServiceFormData } from '../types/service.types';
 
   export const serviceService = {
-    async getServices(params?: ServiceListParams): Promise<ServiceListResponse> {
-      const response = await apiClient.get<{ data: ServiceListResponse }>(API_ENDPOINTS.SERVICES, {
+    async getServices(params?: ServiceListParams, options?: { signal?: AbortSignal }): Promise<ServiceListResponse> {
+      const data: any = await apiClient.get(API_ENDPOINTS.SERVICES, {
         data: params,
+        signal: options?.signal,
       });
-      return response.data.data ?? response.data;
+      return data.data ?? data;
     },
 
     async getAllServices(): Promise<Service[]> {
-      const response = await apiClient.get<{ data: Service[] }>(API_ENDPOINTS.SERVICES_ALL);
-      return response.data.data ?? response.data;
+      const data: any = await apiClient.get(API_ENDPOINTS.SERVICES_ALL);
+      return data.data ?? data;
     },
 
-    async createService(data: ServiceFormData): Promise<Service> {
-      const response = await apiClient.post<{ data: Service }>(API_ENDPOINTS.SERVICES, data);
-      return response.data.data ?? response.data;
+    async createService(formData: ServiceFormData): Promise<Service> {
+      const data: any = await apiClient.post(API_ENDPOINTS.SERVICES, formData);
+      return data.data ?? data;
     },
 
-    async updateService(id: number, data: ServiceFormData): Promise<Service> {
-      const response = await apiClient.put<{ data: Service }>(API_ENDPOINTS.SERVICE_BY_ID(id), data);
-      return response.data.data ?? response.data;
+    async updateService(id: number, formData: ServiceFormData): Promise<Service> {
+      const data: any = await apiClient.put(API_ENDPOINTS.SERVICE_BY_ID(id), formData);
+      return data.data ?? data;
     },
   };

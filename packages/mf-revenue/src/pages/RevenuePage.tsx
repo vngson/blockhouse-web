@@ -31,7 +31,7 @@ import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import PersonIcon from '@mui/icons-material/Person';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import apiClient from '@blockhouse/shared-lib/api/client';
-import { API_ENDPOINTS, usePagination, useDebounce, formatCurrency, formatDateTime, ConfirmDialog } from '@blockhouse/shared-lib';
+import { API_ENDPOINTS, usePagination, useDebounce, useRequestAbort, formatCurrency, formatDateTime, ConfirmDialog } from '@blockhouse/shared-lib';
 import { useRevenueStore } from '../store/revenueStore';
 import { SummaryCards } from '../components/SummaryCards';
 import { OrderSearch } from '../components/OrderSearch';
@@ -84,6 +84,7 @@ export default function RevenuePage() {
   const [dateTo, setDateTo] = useState('');
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   const debouncedKeyword = useDebounce(keyword, 300);
+  const { getSignal, abort } = useRequestAbort();
 
   const [employees, setEmployees] = useState<SimpleEmployee[]>([]);
   const [services, setServices] = useState<SimpleService[]>([]);
@@ -105,11 +106,12 @@ export default function RevenuePage() {
     const loadFormData = async () => {
       try {
         const [empRes, svcRes] = await Promise.all([
-          apiClient.post<{ data: { employees: SimpleEmployee[] } }>(API_ENDPOINTS.EMPLOYEES, { page: 1, page_size: 200 }),
-          apiClient.get<{ data: SimpleService[] | { services: SimpleService[] } }>(API_ENDPOINTS.SERVICES_ALL),
-        ]);
-        setEmployees(empRes.data.data?.employees ?? []);
-        const svcRaw = svcRes.data.data ?? svcRes.data;
+          apiClient.post(API_ENDPOINTS.EMPLOYEES, { page: 1, page_size: 200 }),
+          apiClient.get(API_ENDPOINTS.SERVICES_ALL),
+        ]) as [any, any];
+        const empData = empRes.data ?? empRes;
+        setEmployees(empData?.employees ?? []);
+        const svcRaw = svcRes.data ?? svcRes;
         const svcArray = Array.isArray(svcRaw) ? svcRaw : (Array.isArray((svcRaw as any)?.services) ? (svcRaw as any).services : []);
         setServices(svcArray);
       } catch (err) {
@@ -120,6 +122,7 @@ export default function RevenuePage() {
   }, []);
 
   const loadOrders = useCallback(() => {
+    const signal = getSignal();
     const params = {
       page,
       page_size: pageSize,
@@ -128,9 +131,9 @@ export default function RevenuePage() {
       date_to: dateTo || undefined,
     };
 
-    if (activeTab === 'all') fetchOrders(params);
-    else if (activeTab === 'by_date') fetchOrdersByDate(params);
-    else if (activeTab === 'by_employee') fetchRevenueByEmployee(params);
+    if (activeTab === 'all') fetchOrders(params, { signal });
+    else if (activeTab === 'by_date') fetchOrdersByDate(params, { signal });
+    else if (activeTab === 'by_employee') fetchRevenueByEmployee(params, { signal });
     else {
       const year = new Date().getFullYear();
       const monthStart = dayjs()
@@ -144,18 +147,18 @@ export default function RevenuePage() {
         .month(selectedMonth - 1)
         .endOf('month')
         .format('YYYY-MM-DD');
-      const formatDate = (d: Date) => d.toISOString().split('T')[0];
       fetchMonthlyRevenue({
         ...params,
         date_from: monthStart,
         date_to: monthEnd,
-      });
+      }, { signal });
     }
-  }, [page, pageSize, debouncedKeyword, dateFrom, dateTo, activeTab, fetchOrders, fetchOrdersByDate, fetchRevenueByEmployee, fetchMonthlyRevenue, selectedMonth]);
+  }, [page, pageSize, debouncedKeyword, dateFrom, dateTo, activeTab, fetchOrders, fetchOrdersByDate, fetchRevenueByEmployee, fetchMonthlyRevenue, selectedMonth, getSignal]);
 
   useEffect(() => {
     loadOrders();
-  }, [loadOrders]);
+    return () => abort();
+  }, [loadOrders, abort]);
 
   const handleTabChange = (_: React.SyntheticEvent, newTab: string) => {
     setActiveTab(newTab as any);
@@ -183,27 +186,44 @@ export default function RevenuePage() {
       await deleteOrder(deleteTarget.id);
       setDeleteConfirmOpen(false);
       setDeleteTarget(null);
-      loadOrders();
       setSnackbar({ open: true, message: 'Đã xoá đơn hàng!', severity: 'success' });
-    } catch (err: any) {
-      setSnackbar({ open: true, message: err.message || 'Xoá thất bại', severity: 'error' });
+    } catch (err: unknown) {
+      setSnackbar({
+        open: true,
+        message: err instanceof Error ? err.message : 'Xoá thất bại',
+        severity: 'error',
+      });
     }
   };
 
   const handleCreateSubmit = async (data: OrderFormValues) => {
-    await createOrder({ ...data, total: calcTotal(data.services) });
-    setCreateDialogOpen(false);
-    loadOrders();
-    setSnackbar({ open: true, message: 'Đã tạo đơn hàng thành công!', severity: 'success' });
+    try {
+      await createOrder({ ...data, total: calcTotal(data.services) });
+      setCreateDialogOpen(false);
+      setSnackbar({ open: true, message: 'Đã tạo đơn hàng thành công!', severity: 'success' });
+    } catch (err: unknown) {
+      setSnackbar({
+        open: true,
+        message: err instanceof Error ? err.message : 'Tạo đơn hàng thất bại',
+        severity: 'error',
+      });
+    }
   };
 
   const handleEditSubmit = async (data: OrderFormValues) => {
     if (!editTarget) return;
-    await updateOrder(editTarget.id, { ...data, total: calcTotal(data.services) });
-    setEditDialogOpen(false);
-    setEditTarget(null);
-    loadOrders();
-    setSnackbar({ open: true, message: 'Đã cập nhật đơn hàng!', severity: 'success' });
+    try {
+      await updateOrder(editTarget.id, { ...data, total: calcTotal(data.services) });
+      setEditDialogOpen(false);
+      setEditTarget(null);
+      setSnackbar({ open: true, message: 'Đã cập nhật đơn hàng!', severity: 'success' });
+    } catch (err: unknown) {
+      setSnackbar({
+        open: true,
+        message: err instanceof Error ? err.message : 'Cập nhật thất bại',
+        severity: 'error',
+      });
+    }
   };
 
   const calcTotal = (items: { service_id: number; quantity: number }[]) =>

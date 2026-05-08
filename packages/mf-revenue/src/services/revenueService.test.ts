@@ -12,7 +12,7 @@ describe('revenueService', () => {
   it('getOrders calls POST', async () => {
     mockedClient.post.mockResolvedValueOnce({ data: { data: { orders: [], total_orders: 0 } } } as any);
     await revenueService.getOrders({ page: 1 });
-    expect(mockedClient.post).toHaveBeenCalledWith(API_ENDPOINTS.ORDERS, { page: 1 });
+    expect(mockedClient.post).toHaveBeenCalledWith(API_ENDPOINTS.ORDERS, { page: 1 }, { signal: undefined });
   });
 
   it('getOrderById calls GET', async () => {
@@ -42,12 +42,12 @@ describe('revenueService', () => {
   it('getOrdersByDate calls POST to by_date endpoint', async () => {
     mockedClient.post.mockResolvedValueOnce({ data: { data: { orders_by_date: [], total_days: 0 } } } as any);
     await revenueService.getOrdersByDate({ page: 1 });
-    expect(mockedClient.post).toHaveBeenCalledWith(API_ENDPOINTS.ORDERS_BY_DATE, { page: 1 });
+    expect(mockedClient.post).toHaveBeenCalledWith(API_ENDPOINTS.ORDERS_BY_DATE, { page: 1 }, { signal: undefined });
   });
 
   it('getRevenueByEmployee calls POST to revenue endpoint', async () => {
     mockedClient.post.mockResolvedValueOnce({ data: { data: { revenue_by_employee: [], total_date_employees: 0 } } } as any);
     await revenueService.getRevenueByEmployee({ page: 1 });
-    expect(mockedClient.post).toHaveBeenCalledWith(API_ENDPOINTS.ORDERS_BY_EMPLOYEE, { page: 1 });
+    expect(mockedClient.post).toHaveBeenCalledWith(API_ENDPOINTS.ORDERS_BY_EMPLOYEE, { page: 1 }, { signal: undefined });
   });
 });
