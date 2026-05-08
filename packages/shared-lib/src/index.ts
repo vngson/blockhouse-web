@@ -5,7 +5,7 @@
   // Utils
   export { formatCurrency } from './utils/formatCurrency';
   export { formatDate, formatDateTime } from './utils/formatDate';
-  export { EMPLOYEE_STATUS, DEFAULT_PAGE_SIZE, API_BASE_URL } from './utils/constants';
+  export { EMPLOYEE_STATUS, DEFAULT_PAGE_SIZE } from './utils/constants';
   export { isNotEmpty, isValidPhone, isValidPrice } from './utils/validators';
 
 

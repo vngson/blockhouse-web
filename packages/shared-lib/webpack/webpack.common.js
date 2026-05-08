@@ -1,10 +1,7 @@
 const path = require('path');
 const webpack = require('webpack');
 const { ModuleFederationPlugin } = require('webpack').container;
-const dotenv = require('dotenv');
-
-const envFile = path.resolve(__dirname, '../.env');
-dotenv.config({ path: envFile });
+const { env } = require('../../../webpack.env');
 
 module.exports = {
   entry: './src/index.ts',
@@ -27,7 +24,7 @@ module.exports = {
   },
   plugins: [
     new webpack.DefinePlugin({
-      'process.env.VITE_API_BASE_URL': JSON.stringify(process.env.VITE_API_BASE_URL || 'http://localhost:5000'),
+      'process.env.VITE_API_BASE_URL': JSON.stringify(env.API_BASE_URL),
     }),
     new ModuleFederationPlugin({
       name: 'shared_lib',
