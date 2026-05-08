@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Box, useMediaQuery, useTheme } from '@mui/material';
 import Sidebar from './Sidebar';
 import Header from './Header';
+import BottomTabBar from './BottomTabBar';
 
 const SIDEBAR_WIDTH = 260;
 
@@ -19,12 +20,14 @@ export default function MainLayout({ children }: MainLayoutProps) {
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'background.default' }}>
-      <Sidebar
-        open={sidebarOpen}
-        width={SIDEBAR_WIDTH}
-        variant={isMobile ? 'temporary' : 'persistent'}
-        onClose={handleClose}
-      />
+      {!isMobile && (
+        <Sidebar
+          open={sidebarOpen}
+          width={SIDEBAR_WIDTH}
+          variant="persistent"
+          onClose={handleClose}
+        />
+      )}
       <Box
         sx={{
           flexGrow: 1,
@@ -35,18 +38,20 @@ export default function MainLayout({ children }: MainLayoutProps) {
           width: isMobile ? '100%' : sidebarOpen ? `calc(100% - ${SIDEBAR_WIDTH}px)` : '100%',
         }}
       >
-        <Header onToggleSidebar={handleToggle} />
+        <Header onToggleSidebar={handleToggle} isMobile={isMobile} />
         <Box
           component="main"
           sx={{
             flex: 1,
             p: { xs: 1.5, sm: 2, md: 3 },
+            pb: isMobile ? 9 : { xs: 1.5, sm: 2, md: 3 },
             overflowX: 'auto',
           }}
         >
           {children}
         </Box>
       </Box>
+      {isMobile && <BottomTabBar />}
     </Box>
   );
 }

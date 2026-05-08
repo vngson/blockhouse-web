@@ -290,18 +290,27 @@ export default function RevenuePage() {
         <Tabs
           value={activeTab}
           onChange={handleTabChange}
-          variant="fullWidth"
-          scrollButtons="auto"
+          variant="scrollable"
+          scrollButtons
+          allowScrollButtonsMobile
           sx={{
             minHeight: 48,
-            '& .MuiTab-root': { textTransform: 'none', fontWeight: 600, fontSize: 14, minHeight: 48 },
+            '& .MuiTab-root': {
+              textTransform: 'none', fontWeight: 600, fontSize: 13, minHeight: 48,
+              minWidth: { xs: 'auto', md: 160 },
+              px: { xs: 1.5, md: 2 },
+              flexShrink: 0,
+            },
+            '& .MuiTabScrollButton-root': {
+              width: 32, minWidth: 32,
+            },
             '& .MuiTabs-indicator': { height: 3, borderRadius: '3px 3px 0 0' },
           }}
         >
-          <Tab icon={<ReceiptLongIcon sx={{ fontSize: 18 }} />} iconPosition="start" label="Tất cả đơn hàng" value="all" />
+          <Tab icon={<ReceiptLongIcon sx={{ fontSize: 18 }} />} iconPosition="start" label={<Box component="span" sx={{ display: { xs: 'inline', md: 'inline' } }}>Đơn hàng</Box>} value="all" />
           <Tab icon={<CalendarMonthIcon sx={{ fontSize: 18 }} />} iconPosition="start" label="Theo ngày" value="by_date" />
-          <Tab icon={<PersonIcon sx={{ fontSize: 18 }} />} iconPosition="start" label="Theo nhân viên" value="by_employee" />
-          <Tab icon={<TrendingUpIcon sx={{ fontSize: 18 }} />} iconPosition="start" label="Doanh thu tháng" value="monthly" />
+          <Tab icon={<PersonIcon sx={{ fontSize: 18 }} />} iconPosition="start" label="Nhân viên" value="by_employee" />
+          <Tab icon={<TrendingUpIcon sx={{ fontSize: 18 }} />} iconPosition="start" label="Tháng" value="monthly" />
         </Tabs>
       </Paper>
 
@@ -467,13 +476,13 @@ function OrderByDateTable({ data, page, totalDays, pageSize, onPageChange, loadi
   return (
     <Box>
       <TablePagination page={page} total={totalDays} pageSize={pageSize} onPageChange={onPageChange} />
-      <Paper sx={{ borderRadius: 3, overflow: 'hidden', border: `1px solid ${isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)'}` }}>
+      <Paper sx={{ borderRadius: 3, overflowX: 'auto', border: `1px solid ${isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)'}` }}>
         {loading && data.length > 0 && <Box sx={{ height: 3 }}><LinearProgress /></Box>}
-        <Table>
+        <Table sx={{ minWidth: 500 }}>
           <TableHead>
             <TableRow sx={{ bgcolor: isDark ? 'rgba(245,124,0,0.06)' : 'rgba(230,81,0,0.04)' }}>
               {['Ngày', 'Tổng tiền', 'Số dịch vụ', 'Chi tiết'].map((col) => (
-                <TableCell key={col} sx={{ fontWeight: 700, fontSize: 13, borderBottom: `2px solid ${isDark ? 'rgba(245,124,0,0.12)' : 'rgba(230,81,0,0.12)'}` }}>{col}</TableCell>
+                <TableCell key={col} sx={{ fontWeight: 700, fontSize: 13, borderBottom: `2px solid ${isDark ? 'rgba(245,124,0,0.12)' : 'rgba(230,81,0,0.12)'}`, whiteSpace: 'nowrap' }}>{col}</TableCell>
               ))}
             </TableRow>
           </TableHead>
@@ -512,13 +521,13 @@ function OrderByEmployeeTable({ data, page, total, pageSize, onPageChange, loadi
   return (
     <Box>
       <TablePagination page={page} total={total} pageSize={pageSize} onPageChange={onPageChange} />
-      <Paper sx={{ borderRadius: 3, overflow: 'hidden', border: `1px solid ${isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)'}` }}>
+      <Paper sx={{ borderRadius: 3, overflowX: 'auto', border: `1px solid ${isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)'}` }}>
         {loading && data.length > 0 && <Box sx={{ height: 3 }}><LinearProgress /></Box>}
-        <Table>
+        <Table sx={{ minWidth: 500 }}>
           <TableHead>
             <TableRow sx={{ bgcolor: isDark ? 'rgba(245,124,0,0.06)' : 'rgba(230,81,0,0.04)' }}>
               {['Ngày', 'Nhân viên', 'Tổng tiền', 'Dịch vụ'].map((col) => (
-                <TableCell key={col} sx={{ fontWeight: 700, fontSize: 13, borderBottom: `2px solid ${isDark ? 'rgba(245,124,0,0.12)' : 'rgba(230,81,0,0.12)'}` }}>{col}</TableCell>
+                <TableCell key={col} sx={{ fontWeight: 700, fontSize: 13, borderBottom: `2px solid ${isDark ? 'rgba(245,124,0,0.12)' : 'rgba(230,81,0,0.12)'}`, whiteSpace: 'nowrap' }}>{col}</TableCell>
               ))}
             </TableRow>
           </TableHead>
@@ -586,9 +595,9 @@ function MonthlyRevenueTable({ data, page, total, pageSize, onPageChange, loadin
   return (
     <Box>
       <TablePagination page={page} total={total} pageSize={pageSize} onPageChange={onPageChange} />
-      <Paper sx={{ borderRadius: 3, border: `1px solid ${isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)'}` }}>
+      <Paper sx={{ borderRadius: 3, overflowX: 'auto', border: `1px solid ${isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)'}` }}>
         {loading && data.length > 0 && <Box sx={{ height: 3 }}><LinearProgress /></Box>}
-        <Table>
+        <Table sx={{ minWidth: 400 }}>
           <TableHead>
             <TableRow sx={{ bgcolor: isDark ? 'rgba(245,124,0,0.06)' : 'rgba(230,81,0,0.04)' }}>
               <TableCell sx={{ fontWeight: 700, fontSize: 13, borderBottom: headBorder }}>

@@ -8,9 +8,10 @@ import React from 'react';
 
   interface HeaderProps {
     onToggleSidebar: () => void;
+    isMobile?: boolean;
   }
 
-  export default function Header({ onToggleSidebar }: HeaderProps) {
+  export default function Header({ onToggleSidebar, isMobile }: HeaderProps) {
     const theme = useTheme();
     const { mode, toggleTheme } = useThemeStore();
 
@@ -25,17 +26,19 @@ import React from 'react';
         }}
       >
         <Toolbar sx={{ gap: 1 }}>
-          <IconButton
-            onClick={onToggleSidebar}
-            sx={{
-              borderRadius: '10px',
-              bgcolor: alpha(theme.palette.primary.main, 0.06),
-              '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.12) },
-              transition: 'background 0.2s',
-            }}
-          >
-            <MenuRoundedIcon sx={{ color: 'text.secondary' }} />
-          </IconButton>
+          {!isMobile && (
+            <IconButton
+              onClick={onToggleSidebar}
+              sx={{
+                borderRadius: '10px',
+                bgcolor: alpha(theme.palette.primary.main, 0.06),
+                '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.12) },
+                transition: 'background 0.2s',
+              }}
+            >
+              <MenuRoundedIcon sx={{ color: 'text.secondary' }} />
+            </IconButton>
+          )}
           <Typography
             variant="subtitle1"
             fontWeight={600}

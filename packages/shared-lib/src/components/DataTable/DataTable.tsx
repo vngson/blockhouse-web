@@ -37,8 +37,8 @@ import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper
     return (
       <>
         <Pagination page={page} totalItems={totalItems} pageSize={pageSize} onPageChange={onPageChange} />
-        <TableContainer component={Paper}>
-          <Table>
+        <TableContainer component={Paper} sx={{ overflowX: 'auto' }}>
+          <Table sx={{ minWidth: 600 }}>
             <TableHead>
               <TableRow>
                 {columns.map((col) => (
